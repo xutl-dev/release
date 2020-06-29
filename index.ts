@@ -36,16 +36,11 @@ if (module.id === '.') {
 			console.error(`${pkg.name} version ${pkg.version} is already release as tag ${tag}`);
 			return;
 		}
-		const response = await octokit.repos.createRelease({
-			owner,
-			repo,
-			tag_name: `v${pkg.version}`,
-			name: `Release v${pkg.version}`,
-			target_commitish: pkg.commit,
-			draft: true,
-			prerelease: pkg.npmtag !== 'latest',
-		});
-		console.error(response);
+		if (!(await createRelease(owner, repo, pkg))) {
+			console.error(`Release Failed!`);
+			return;
+		}
+		console.log(`${pkg.name} version ${pkg.version} release was drafted with tag ${tag}`);
 	}
 	function usage(exit: number = 1) {
 		console.error(`xutlrelease <org/repo>`);
