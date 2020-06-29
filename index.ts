@@ -2,14 +2,17 @@ import { Octokit } from '@octokit/rest';
 import { env } from 'process';
 import * as fs from 'fs';
 import { exec } from 'child_process';
+import { URL } from 'url';
 
 const octokit = new Octokit({ timeZone: 'UTC', baseUrl: env.GITHUP_API, auth: env.GITHUB_TOKEN });
 
 if (module.id === '.') {
 	if (process.argv.length === 2 && fs.existsSync('package.json')) {
 		const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
-		process.argv[2] = pkg.name.replace(/^@/, '');
+		const url = new URL(pkg.repository.url);
+		process.argv[2] = url.pathname.replace(/^\/|\.git$/g, '');
 	}
+
 	if (process.argv.length !== 3) usage(1);
 	const parts = process.argv[2].split('/');
 	if (parts.length !== 2) usage(2);
