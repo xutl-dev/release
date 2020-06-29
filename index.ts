@@ -1,5 +1,5 @@
 import { Octokit } from '@octokit/rest';
-import { env, stdout } from 'process';
+import { env } from 'process';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 
@@ -31,14 +31,16 @@ if (module.id === '.') {
 			console.error(`${pkg.name} version ${pkg.version} is already release as tag ${tag}`);
 			return;
 		}
-		await octokit.repos.createRelease({
+		const response = await octokit.repos.createRelease({
 			owner,
 			repo,
 			tag_name: `v${pkg.version}`,
 			name: `Release v${pkg.version}`,
 			target_commitish: pkg.commit,
+			draft: true,
 			prerelease: pkg.npmtag !== 'latest',
 		});
+		console.error(response);
 	}
 	function usage(exit: number = 1) {
 		console.error(`xutlrelease <org/repo>`);
@@ -74,18 +76,39 @@ export async function getLatestPackageJSON(owner: string, repo: string, path: st
 	return { name, version, description, commit, npmtag };
 }
 export async function getReleaseTag(owner: string, repo: string, commit: string): Promise<string | undefined> {
-	const releases = await octokit.repos.listReleases({ owner, repo, per_page: 100, page: 1 });
-	console.log(releases);
-	for (const release of releases.data) {
-		const rcommit = await octokit.repos.getCommit({ owner, repo, ref: release.tag_name });
-		if (commit === rcommit.data.sha) return release.tag_name;
+	try {
+		const releases = await octokit.repos.listReleases({ owner, repo, per_page: 100, page: 1 });
+		for (const release of releases.data) {
+			const rcommit = await octokit.repos.getCommit({ owner, repo, ref: release.tag_name });
+			if (commit === rcommit.data.sha) return release.tag_name;
+		}
+		return;
+	} catch (e) {
+		console.debug(e);
+		return;
 	}
-	return;
 }
 export async function isPublished(pkg: Package) {
 	try {
-		await execute(`npm view "${pkg.name}@${pkg.version}" version`);
-		return true;
+		const version = await execute(`npm view ${pkg.name}@${pkg.version} version`);
+		return `${version || ''}`.trim() === pkg.version.trim();
+	} catch (e) {
+		console.debug(e);
+		return false;
+	}
+}
+export async function createRelease(owner: string, repo: string, pkg: Package): Promise<boolean> {
+	try {
+		const response = await octokit.repos.createRelease({
+			owner,
+			repo,
+			tag_name: `v${pkg.version}`,
+			name: `Release v${pkg.version}`,
+			target_commitish: pkg.commit,
+			draft: true,
+			prerelease: pkg.npmtag !== 'latest',
+		});
+		return response.status > 199 && response.status < 300;
 	} catch (e) {
 		console.debug(e);
 		return false;
@@ -94,9 +117,6 @@ export async function isPublished(pkg: Package) {
 async function execute(cmd: string): Promise<string> {
 	return new Promise((resolve, reject) => {
 		exec(cmd, (err, stdout, stderr) => {
-			console.log('err: ', err);
-			console.log('stdout: ', stdout);
-			console.error('stderr: ', stderr);
 			if (err) return reject(new Error(stderr));
 			resolve(stdout);
 		});
