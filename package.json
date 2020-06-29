@@ -4,7 +4,7 @@
 	"description": "Package Github Release Creation",
 	"main": "index.js",
 	"scripts": {
-		"test": "echo OK",
+		"test": "xutltest",
 		"build": "tsc && chmod 0755 index.js",
 		"prepublishOnly": "npm run build"
 	},
@@ -29,6 +29,7 @@
 	"homepage": "https://xutl.es",
 	"devDependencies": {
 		"@types/node": "^14.0.14",
+		"@xutl/test": "^1.0.2",
 		"typescript": "^3.9.5"
 	},
 	"dependencies": {

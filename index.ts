@@ -99,6 +99,7 @@ export async function isPublished(pkg: Package) {
 }
 export async function createRelease(owner: string, repo: string, pkg: Package): Promise<boolean> {
 	try {
+		const body = await createChangeLog(owner, repo, pkg);
 		const response = await octokit.repos.createRelease({
 			owner,
 			repo,
@@ -107,6 +108,7 @@ export async function createRelease(owner: string, repo: string, pkg: Package): 
 			target_commitish: pkg.commit,
 			draft: true,
 			prerelease: pkg.npmtag !== 'latest',
+			body,
 		});
 		return response.status > 199 && response.status < 300;
 	} catch (e) {
@@ -114,6 +116,21 @@ export async function createRelease(owner: string, repo: string, pkg: Package): 
 		return false;
 	}
 }
+const PR_REGEX = /\(#(\d+)\)/;
+export async function createChangeLog(owner: string, repo: string, pkg: Package): Promise<string> {
+	const prev = await octokit.repos.getLatestRelease({ owner, repo });
+	const args = { owner, repo, base: prev.data.tag_name, head: pkg.commit };
+	const changes = await octokit.repos.compareCommits({ owner, repo, base: prev.data.tag_name, head: pkg.commit });
+	const lines: string[] = [];
+	for (const change of changes.data.commits) {
+		const sha = change.sha.slice(0, 6);
+		const message = change.commit.message.replace(PR_REGEX, (_, pr) => `([#${pr}](/${owner}/${repo}/pull/${pr}))`);
+		const url = new URL(change.html_url);
+		lines.push(` * [${sha}](${url.pathname}) - ${message}`);
+	}
+	return lines.join('\n');
+}
+
 async function execute(cmd: string): Promise<string> {
 	return new Promise((resolve, reject) => {
 		exec(cmd, (err, stdout, stderr) => {
