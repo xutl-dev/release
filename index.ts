@@ -40,7 +40,7 @@ if (module.id === '.') {
 			console.error(`Release Failed!`);
 			return;
 		}
-		console.log(`${pkg.name} version ${pkg.version} release was drafted with tag ${tag}`);
+		console.log(`${pkg.name} version ${pkg.version} release was drafted with tag v${pkg.version}`);
 	}
 	function usage(exit: number = 1) {
 		console.error(`xutlrelease <org/repo>`);
