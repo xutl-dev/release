@@ -1,35 +1,17 @@
 # @xutl/json
 
-One [eXtremely Useful Tool Library](https://xutl.es) to handle package versions.
+One [eXtremely Useful Tool Library](https://xutl.es) to handle github releases.
 
 ## Install
 
 ```bash
-npm install --save-dev @xutl/version
+npm install --save-dev @xutl/release
 ```
 
 ## Usage
 
 ```bash
-xutlversion ./package.json # sets the (package.json).version to the lates published
-xutlversion ./package.json none # sets the (package.json).version to the lates published
-xutlversion ./package.json patch # sets the (package.json).version to the lates published bumped by a patch
-xutlversion ./package.json minor # sets the (package.json).version to the lates published bumped by a minor
-xutlversion ./package.json major # sets the (package.json).version to the lates published bumped by a major
-```
-
-## Code Usage
-
-```typescript
-import JSON from '@xutl/json';
-import { getVersion, bump, Mode, Package } from '@xutl/version';
-
-async function main(mode: Mode, file: string) {
-	const pkg = (await JSON.read(file)) as Package;
-	const { localChanged } = await bump(mode, pkg, 'https://registry.npmjs.com');
-	await JSON.write(file, pkg, { whitespace: '\t' });
-}
-main(process.argv[3], process.argv[2]).catch((e) => console.error(e));
+xutlrelease <org/repo> # checks if there's alread  a github release and this version does not exist on npm. Then releases it to gh
 ```
 
 ## License
