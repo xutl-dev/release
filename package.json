@@ -1,6 +1,6 @@
 {
 	"name": "@xutl/release",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"description": "Package Github Release Creation",
 	"main": "index.js",
 	"scripts": {

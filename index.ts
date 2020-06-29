@@ -94,6 +94,9 @@ export async function isPublished(pkg: Package) {
 async function execute(cmd: string): Promise<string> {
 	return new Promise((resolve, reject) => {
 		exec(cmd, (err, stdout, stderr) => {
+			console.log('err: ', err);
+			console.log('stdout: ', stdout);
+			console.error('stderr: ', stderr);
 			if (err) return reject(new Error(stderr));
 			resolve(stdout);
 		});
