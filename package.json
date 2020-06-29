@@ -1,0 +1,42 @@
+{
+	"name": "@xutl/release",
+	"version": "1.0.0",
+	"description": "Package Github Release Creation",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo OK",
+		"build": "tsc && chmod 0755 index.js",
+		"prepublishOnly": "npm run build"
+	},
+	"bin": {
+		"xutlrelease": "./index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/xutl-es/release.git"
+	},
+	"keywords": [
+		"XtremelyUsefulToolLibraries",
+		"Package",
+		"Github",
+		"Release"
+	],
+	"author": "XUTL <dev@xutl.es>",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/xutl-es/release/issues"
+	},
+	"homepage": "https://xutl.es",
+	"devDependencies": {
+		"@octokit/rest": "^18.0.0",
+		"@types/node": "^14.0.14",
+		"@types/semver": "^7.3.1",
+		"typescript": "^3.9.5"
+	},
+	"dependencies": {
+		"@xutl/aim": "^1.0.0",
+		"@xutl/istream": "^1.0.0",
+		"@xutl/json": "^1.0.0",
+		"semver": "^7.3.2"
+	}
+}
